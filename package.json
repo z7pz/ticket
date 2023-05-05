@@ -1,0 +1,37 @@
+{
+	"name": "js-ticket",
+	"version": "1.0.0",
+	"description": "",
+	"main": "src/index.js",
+	"type": "module",
+	"scripts": {
+		"dev": "nodemon --experimental-specifier-resolution=node ./src/index.ts",
+		"orm:migrate:create": "NODE_OPTIONS=\"--loader ts-node/esm\" mikro-orm migration:create",
+		"orm:migrate:up": "NODE_OPTIONS=\"--loader ts-node/esm\" mikro-orm migration:up"
+	},
+	"author": "z7pz",
+	"keywords": [],
+	"license": "MIT",
+	"dependencies": {
+		"@mikro-orm/core": "^5.7.4",
+		"@mikro-orm/mongodb": "^5.7.4",
+		"@mikro-orm/postgresql": "^5.7.4",
+		"@sapphire/framework": "^4.4.3",
+		"discord.js": "^14.10.2",
+		"dotenv": "^16.0.3",
+		"tslib": "^2.5.0",
+		"uuid": "^9.0.0"
+	},
+	"mikro-orm": {
+		"useTsNode": true,
+		"configPaths": [
+			"./src/utils/mikro-orm.config.ts",
+			"./dist/utils/mikro-orm.config.js"
+		]
+	},
+	"devDependencies": {
+		"@mikro-orm/cli": "^5.7.4",
+		"@types/node": "^18.16.3",
+		"ts-node": "^10.9.1"
+	}
+}

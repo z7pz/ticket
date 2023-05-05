@@ -1,0 +1,32 @@
+{
+	"compilerOptions": {
+		"target": "ESNext",
+		"module": "ESNext",
+		"moduleResolution": "node",
+		"allowSyntheticDefaultImports": true,
+		"importHelpers": true,
+		"alwaysStrict": true,
+		"sourceMap": true,
+		"forceConsistentCasingInFileNames": true,
+		"noFallthroughCasesInSwitch": true,
+		"noImplicitReturns": true,
+		"noImplicitAny": false,
+		"noImplicitThis": false,
+		"strictNullChecks": false,
+		"esModuleInterop": true,
+		"rootDir": ".",
+		"baseUrl": "src",
+		"outDir": "dist",
+		"removeComments": true,
+		"skipLibCheck": true,
+		"declaration": true,
+		"resolveJsonModule": true,
+		"declarationDir": "./dist/types",
+		"experimentalDecorators": true
+	},
+	"ts-node": {
+		"esm": true
+	},
+	"include": ["src/**/*", "./config.json"],
+	"exclude": ["node_modules", "*/node_modules/**"]
+}
