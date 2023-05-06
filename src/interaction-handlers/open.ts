@@ -12,7 +12,7 @@ import {
 	PermissionsBitField,
 } from "discord.js";
 import { EButtonId, ECategories, ERoles } from "../utils";
-import { ConfigEntity, TicketEntity } from "../entities";
+import { ConfigEntity, TicketEntity, TicketStatus } from "../entities";
 
 export class ButtonHandler extends InteractionHandler {
 	public constructor(ctx: PieceContext, options: InteractionHandler.Options) {
@@ -26,8 +26,20 @@ export class ButtonHandler extends InteractionHandler {
 		return this.some();
 	}
 
-	public async run(interaction: ButtonInteraction) {
+	public async run(interaction: ButtonInteraction): Promise<any> {
 		const message = interaction.message;
+
+		// check if user has active ticket
+		const t = await TicketEntity.findOne({
+			user_id: interaction.user.id,
+			status: TicketStatus.Orders,
+		});
+		if (t && interaction.guild.channels.cache.get(t.channel_id)) {
+			return await interaction.reply({
+				content: "Sorry, you can't open two tickets at the same time.",
+				ephemeral: true,
+			});
+		}
 
 		// Supported roles
 		const primary_role = message.guild.roles.cache.get(ERoles.Supports);
@@ -58,54 +70,54 @@ export class ButtonHandler extends InteractionHandler {
 				},
 			],
 			name: `ticket-${config.tickets}`,
-			/**
-			 * increment the number of ticket
-			 */
 		});
 
 		// Saving to Database
-		await new TicketEntity(ticket_channel.id, config.tickets).save();
+		await new TicketEntity(
+			ticket_channel.id,
+			interaction.user.id,
+			config.tickets
+		).save();
 
 		// Action builder for 'claim' and 'close' buttons
 		const ticket_buttons = new ActionRowBuilder()
 			.addComponents(
 				new ButtonBuilder()
 					.setCustomId(EButtonId.ClaimTicket)
-					.setLabel("Claim")
-					.setStyle(ButtonStyle.Primary)
+					.setLabel("استلام")
+					.setStyle(ButtonStyle.Success)
 			)
 			.addComponents(
 				new ButtonBuilder()
-					.setCustomId(EButtonId.DeleteTicket)
-					.setLabel("Delete")
+					.setCustomId(EButtonId.LeaveTicket)
+					.setLabel("ترك")
 					.setStyle(ButtonStyle.Danger)
 			)
 			.addComponents(
 				new ButtonBuilder()
 					.setCustomId(EButtonId.LockTicket)
-					.setLabel("Lock")
-					.setStyle(ButtonStyle.Danger)
+					.setLabel("قفل")
+					.setStyle(ButtonStyle.Secondary)
 			)
 			.addComponents(
 				new ButtonBuilder()
-					.setCustomId(EButtonId.LeaveTicket)
-					.setLabel("Leave")
+					.setCustomId(EButtonId.DeleteTicket)
+					.setLabel("حذف")
 					.setStyle(ButtonStyle.Danger)
 			);
 
-		// Embed builder
-		const ticket_embed = new EmbedBuilder().setAuthor({
-			name: "Welcome to 7br",
-		});
-
 		await ticket_channel.send({
-			embeds: [ticket_embed],
+			content: `https://gfycat.com/idlefastduckbillcat`,
 			//@ts-ignore
 			components: [ticket_buttons],
 		});
 
+		await ticket_channel.send({
+			content: `${primary_role}, ${secondary_role}`,
+		});
+
 		await interaction.reply({
-			content: "Your ticket has been created successfully!",
+			content: `تم أنشاء تذكرتك بنجاح. ${ticket_channel}`,
 			ephemeral: true,
 		});
 	}

@@ -6,7 +6,7 @@ import {
 	PermissionsBitField,
 	TextChannel,
 } from "discord.js";
-import { is_ticket } from "../../utils";
+import { ERoles, is_ticket } from "../../utils";
 
 export class AddMemberCommand extends Command {
 	public constructor(context: Command.Context, options: Command.Options) {
@@ -17,8 +17,10 @@ export class AddMemberCommand extends Command {
 			runIn: "GUILD_TEXT",
 		});
 	}
-	// TODO: permissions for only Admins
 	public async messageRun(message: Message, args: Args) {
+		if(!message.member.roles.cache.hasAny(ERoles.Designers, ERoles.Supports)) {
+			return message.reply("Sorry, only Support or Designers can add member.");
+		}
 		if (!(await is_ticket(message.channel.id)))
 			return message.channel.send("Sorry, this is not a ticket channel.");
 		let member = await args.peekResult("member");

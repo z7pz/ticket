@@ -1,12 +1,18 @@
 import { Args, Command } from "@sapphire/framework";
-import type { Message, TextChannel } from "discord.js";
+import {
+	CategoryChannel,
+	GuildMember,
+	Message,
+	PermissionsBitField,
+	TextChannel,
+} from "discord.js";
 import { ERoles, is_ticket } from "../../utils";
 
-export class RenameCommand extends Command {
+export class RemoveMemberCommand extends Command {
 	public constructor(context: Command.Context, options: Command.Options) {
 		super(context, {
 			...options,
-			name: "rename",
+			name: "remove",
 			aliases: [],
 			runIn: "GUILD_TEXT",
 		});
@@ -17,15 +23,22 @@ export class RenameCommand extends Command {
 		}
 		if (!(await is_ticket(message.channel.id)))
 			return message.channel.send("Sorry, this is not a ticket channel.");
-		let name = await args.peekResult("string", { minimum: 3 });
-		return await name.match({
-			ok: async (name: string) => {
+		let member = await args.peekResult("member");
+
+		return await member.match({
+			ok: async (member: GuildMember) => {
 				let channel = message.channel as TextChannel;
 				await channel.edit({
-					name,
+					permissionOverwrites: [
+						...channel.permissionOverwrites.cache.toJSON(),
+						{
+							id: member,
+							deny: [PermissionsBitField.Flags.ViewChannel],
+						},
+					],
 				});
 				return message.channel.send(
-					"The channel's name has been renamed successfully!"
+					`${member} has been removed to this ticket successfully!`
 				);
 			},
 			err: (err: any) =>

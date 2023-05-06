@@ -9,7 +9,7 @@ import {
 	PermissionsBitField,
 } from "discord.js";
 import { EButtonId, ECategories, ERoles, is_ticket } from "../utils";
-import { TicketEntity } from "../entities";
+import { TicketEntity, TicketStatus } from "../entities";
 
 export class ButtonHandler extends InteractionHandler {
 	public constructor(ctx: PieceContext, options: InteractionHandler.Options) {
@@ -38,20 +38,24 @@ export class ButtonHandler extends InteractionHandler {
 		const Ticket = await TicketEntity.findOne({
 			channel_id: interaction.channel.id,
 		});
-		await interaction.channel.edit({
-			parent: ECategories.Lock,
-			name: `locked-${Ticket.ticket_index}`,
-			permissionOverwrites: [
-				{
-					id: interaction.guild.roles.everyone,
-					deny: [PermissionsBitField.Flags.ViewChannel],
-				},
-			],
-		}).catch((e) =>
-		interaction.reply(
-			"Sorry, Something went worng, (editing the channel)"
-		)
-	);;
+		await interaction.channel
+			.edit({
+				parent: ECategories.Lock,
+				name: `locked-${Ticket.ticket_index}`,
+				permissionOverwrites: [
+					{
+						id: interaction.guild.roles.everyone,
+						deny: [PermissionsBitField.Flags.ViewChannel],
+					},
+				],
+			})
+			.catch((e) =>
+				interaction.reply(
+					"Sorry, Something went worng, (editing the channel)"
+				)
+			);
+		Ticket.status = TicketStatus.Locked;
+		await Ticket.save();
 		return await interaction.reply(
 			"This ticket successfully moved to lock category!"
 		);
