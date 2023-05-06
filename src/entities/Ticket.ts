@@ -8,10 +8,24 @@ import {
 import { Base, CouponEntity } from ".";
 import { orm } from "..";
 
+export enum TicketStatus {
+	Orders = "Ordered",
+	Closed = "Closed",
+	Deleted = "Deleted",
+	Locked = "Locked",
+	Claimed = "Claimed"
+} 
+
 @Entity({ tableName: "Ticket" })
 export class TicketEntity extends Base {
 	@Property({ type: "string" })
 	channel_id!: string;
+
+	@Property({ type: "enum" })
+	status: TicketStatus = TicketStatus.Orders;
+
+	@Property({ type: "string" })
+	user_id!: string;
 
 	@Property({ type: "numeric" })
 	ticket_index!: number;
@@ -22,10 +36,11 @@ export class TicketEntity extends Base {
 	@ManyToOne(() => CouponEntity, { nullable: true })
 	coupon?: CouponEntity;
 
-	constructor(channel_id: string, ticket_index: number) {
+	constructor(channel_id: string, user_id: string, ticket_index: number) {
 		super();
 		this.channel_id = channel_id;
 		this.ticket_index = ticket_index;
+		this.user_id = user_id;
 	}
 
 	static async findOne(

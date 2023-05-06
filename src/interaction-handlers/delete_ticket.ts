@@ -9,7 +9,7 @@ import {
 	PermissionsBitField,
 } from "discord.js";
 import { EButtonId, ECategories, ERoles, is_ticket } from "../utils";
-import { TicketEntity } from "../entities";
+import { TicketEntity, TicketStatus } from "../entities";
 
 export class ButtonHandler extends InteractionHandler {
 	public constructor(ctx: PieceContext, options: InteractionHandler.Options) {
@@ -56,6 +56,8 @@ export class ButtonHandler extends InteractionHandler {
 					"Sorry, Something went worng, (editing the channel)"
 				)
 			);
+		Ticket.status = TicketStatus.Deleted;
+		await Ticket.save();
 		return await interaction.reply(
 			"This ticket successfully moved to delete category!"
 		);

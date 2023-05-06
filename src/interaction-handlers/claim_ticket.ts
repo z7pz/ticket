@@ -11,7 +11,7 @@ import {
 } from "discord.js";
 import { EButtonId, ECategories, ERoles } from "../utils";
 import { is_ticket } from "../utils/checkChannel";
-import { TicketEntity } from "../entities";
+import { TicketEntity, TicketStatus } from "../entities";
 
 export class ButtonHandler extends InteractionHandler {
 	public constructor(ctx: PieceContext, options: InteractionHandler.Options) {
@@ -68,7 +68,7 @@ export class ButtonHandler extends InteractionHandler {
 				parent: ECategories.Working,
 				name: `claimedby-${interaction.user.username}-${Ticket.ticket_index}`,
 				topic: `claimed by: ${interaction.user.toString()}, Discount: ${
-					Ticket.coupon.discount
+					Ticket.coupon ? Ticket.coupon.discount : 0
 				}%`,
 				permissionOverwrites: [
 					...(
@@ -94,6 +94,7 @@ export class ButtonHandler extends InteractionHandler {
 				)
 			);
 		Ticket.claimed_by = interaction.user.id;
+		Ticket.status = TicketStatus.Claimed;
 		await Ticket.save();
 		return await interaction.reply({
 			ephemeral: true,

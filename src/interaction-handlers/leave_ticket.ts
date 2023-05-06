@@ -9,7 +9,7 @@ import {
 	PermissionsBitField,
 } from "discord.js";
 import { EButtonId, ECategories, ERoles, is_ticket } from "../utils";
-import { TicketEntity } from "../entities";
+import { TicketEntity, TicketStatus } from "../entities";
 
 export class ButtonHandler extends InteractionHandler {
 	public constructor(ctx: PieceContext, options: InteractionHandler.Options) {
@@ -62,7 +62,9 @@ export class ButtonHandler extends InteractionHandler {
 		await interaction.channel
 			.edit({
 				parent: ECategories.Orders,
-				topic: `claimed by: UnKnown, Discount: ${Ticket.coupon.discount}%`,
+				topic: `claimed by: UnKnown, Discount: ${
+					Ticket.coupon ? Ticket.coupon.discount : 0
+				}%`,
 				name: `ticket-${Ticket.ticket_index}`,
 			})
 			.catch((e) =>
@@ -70,7 +72,8 @@ export class ButtonHandler extends InteractionHandler {
 					"Sorry, Something went worng, (editing the channel)"
 				)
 			);
-
+		Ticket.status = TicketStatus.Orders;
+		await Ticket.save();
 		// Supported roles
 		const primary_role = interaction.guild.roles.cache.get(ERoles.Supports);
 		const secondary_role = interaction.guild.roles.cache.get(
