@@ -19,9 +19,8 @@
 		"outDir": "dist",
 		"removeComments": true,
 		"skipLibCheck": true,
-		"declaration": true,
+		"declaration": false,
 		"resolveJsonModule": true,
-		"declarationDir": "./dist/types",
 		"experimentalDecorators": true
 	},
 	"ts-node": {
